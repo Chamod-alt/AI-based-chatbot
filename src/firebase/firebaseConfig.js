@@ -1,6 +1,18 @@
-// src/firebase/firebaseConfig.js
-/*import { initializeApp } from "firebase/app";
-import { getDatabase, ref, push, onValue } from "firebase/database";
+/*
+
+import { initializeApp } from 'firebase/app';
+import {
+  getDatabase,
+  ref,
+  onValue,
+  push,
+  remove,
+  update,
+  get,
+  onChildAdded
+} from 'firebase/database';
+
+import { getAuth } from 'firebase/auth';
 
 const firebaseConfig = {
     apiKey: "AIzaSyBxd778T6RPeeiYO-zoEd522qrGUIMZnY4",
@@ -14,13 +26,38 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
+const auth = getAuth(app);
 
-export { db, ref, push, onValue };
+export {
+  db,
+  auth,
+  ref,
+  onValue,
+  push,
+  remove,
+  update,
+  get,
+  onChildAdded
+};
 */
 
-// src/firebase/firebaseConfig.js
 import { initializeApp } from 'firebase/app';
-import { getDatabase, ref, push, onValue, remove, update } from 'firebase/database';
+import {
+  getDatabase,
+  ref,
+  push,
+  onValue,
+  onChildAdded,
+  get,
+  query,
+  limitToLast,
+  remove,
+  update,
+  child,
+  onChildChanged,
+  onChildRemoved,
+} from 'firebase/database';
+import { getAuth } from 'firebase/auth';
 
 const firebaseConfig = {
     apiKey: "AIzaSyBxd778T6RPeeiYO-zoEd522qrGUIMZnY4",
@@ -33,7 +70,7 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
-const db = getDatabase(app);
 
-// 👇 Add remove and update to the export list
-export { db, ref, push, onValue, remove, update };
+export const db = getDatabase(app);
+export const auth = getAuth(app);
+export { ref, push, onValue, onChildAdded, get, query, limitToLast, remove, update, child,onChildChanged, onChildRemoved };

@@ -78,7 +78,7 @@ export default function ChatMessage({ message, onDelete, onUpdate }) {
   );
 }
 */
-
+/*
 import React from 'react';
 import { MdEdit, MdDelete } from 'react-icons/md';
 import './ChatMessage.css'; // 👈 Create this CSS file
@@ -122,7 +122,7 @@ export default function ChatMessage({ message, onDelete, onUpdate }) {
           <p style={{ margin: '5px 0' }}>{message.text}</p>
         )}
 
-        {/* Edit/Delete buttons */}
+        
         <div style={{ marginTop: 5, fontSize: 12 }}>
           <button
             onClick={onUpdate}
@@ -153,6 +153,94 @@ export default function ChatMessage({ message, onDelete, onUpdate }) {
         </div>
 
         <small style={{ fontSize: '0.75rem', color: '#555' }}>{formatted}</small>
+      </div>
+    </div>
+  );
+}
+*/
+
+import React from 'react';
+import { MdEdit, MdDelete } from 'react-icons/md';
+import './ChatMessage.css'; 
+
+export default function ChatMessage({ message, onDelete, onUpdate, darkMode }) {
+  const date = new Date(message.timestamp);
+  const formatted = date.toLocaleString('en-US', {
+    dateStyle: 'short',
+    timeStyle: 'short'
+  });
+
+  const isUser = message.role === 'user';
+  const isPending = message.text === '...' && !isUser;
+
+  const backgroundColor = isUser
+    ? darkMode ? '#2a3b3c' : '#e0f7fa'
+    : darkMode ? '#3a4b3c' : '#c8e6c9';
+
+  const textColor = darkMode ? '#fff' : '#000';
+
+  return (
+    <div
+      style={{
+        textAlign: isUser ? 'left' : 'right',
+        marginBottom: '15px'
+      }}
+    >
+      <div
+        style={{
+          display: 'inline-block',
+          padding: '10px',
+          borderRadius: '8px',
+          backgroundColor,
+          color: textColor,
+          maxWidth: '70%',
+          position: 'relative',
+          minWidth: '20%'
+        }}
+      >
+        <strong>{isUser ? 'You' : 'Gemini'}:</strong>
+
+        {isPending ? (
+          <div className="typing-indicator">
+            <span className="dot"></span>
+            <span className="dot"></span>
+            <span className="dot"></span>
+          </div>
+        ) : (
+          <p style={{ margin: '5px 0' }}>{message.text}</p>
+        )}
+
+        <div style={{ marginTop: 5, fontSize: 12 }}>
+          <button
+            onClick={onUpdate}
+            style={{
+              marginLeft: 1,
+              background: 'transparent',
+              outline: 'none',
+              border: 'none',
+              fontSize: '17px',
+              cursor: 'pointer'
+            }}
+          >
+            <MdEdit color={darkMode ? '#90caf9' : '#1976d2'} />
+          </button>
+          <button
+            onClick={onDelete}
+            style={{
+              background: 'transparent',
+              outline: 'none',
+              border: 'none',
+              fontSize: '17px',
+              cursor: 'pointer'
+            }}
+          >
+            <MdDelete color="red" />
+          </button>
+        </div>
+
+        <small style={{ fontSize: '0.75rem', color: darkMode ? '#aaa' : '#555' }}>
+          {formatted}
+        </small>
       </div>
     </div>
   );
