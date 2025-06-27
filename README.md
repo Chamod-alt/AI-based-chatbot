@@ -25,5 +25,5 @@ This is a psychology-focused ChatBot web application built using **React**, **Fi
 - **Styling**: CSS + Inline styles (Responsive UI)
 
 ## start
-npm install
-npm start
+  npm install and 
+  npm start
