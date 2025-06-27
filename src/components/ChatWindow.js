@@ -2,6 +2,8 @@
 // src/components/ChatWindow.js
 
 import React, { useEffect, useState, useRef } from 'react';
+import Navbar from './Navbar';//import navbar
+
 import {
   db,
   ref,
@@ -14,11 +16,11 @@ import {
   get,
   query,
   limitToLast,
-} from '../firebase/firebaseConfig';
-import { useAuth } from '../context/AuthProvider';
+} from '../firebase/firebaseConfig';// call firebace compornents
+import { useAuth } from '../context/AuthProvider';//add auth provider
 import ChatMessage from './ChatMessage';
-import { GoogleGenerativeAI } from '@google/generative-ai';
-
+import { GoogleGenerativeAI } from '@google/generative-ai';//gimini api
+// AI behaviour
 const persona = {
   role: 'Psychology Counselor',
   tone: 'Empathetic and calm',
@@ -28,11 +30,11 @@ const persona = {
 export default function ChatWindow() {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
-  const [darkMode, setDarkMode] = useState(true); // toggle mode
+  const [darkMode, setDarkMode] = useState(false); // toggle mode
   const messagesEndRef = useRef(null);
   const { user } = useAuth();
   const genAI = new GoogleGenerativeAI(process.env.REACT_APP_GEMINI_API_KEY);
-
+//  Scroll to Bottom on Message Update
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
@@ -41,7 +43,7 @@ export default function ChatWindow() {
     if (!user) return;
 
     const userChatRef = ref(db, `chat/${user.uid}`);
-
+//Fetch last 50 messages from Firebase for the current user.
     const fetchHistory = async () => {
       const messagesRef = query(userChatRef, limitToLast(50));
       const snapshot = await get(messagesRef);
@@ -53,7 +55,7 @@ export default function ChatWindow() {
     };
 
     fetchHistory();
-
+// Listen for new messages in real time and append.
     onChildAdded(userChatRef, (snapshot) => {
       const newMessage = { id: snapshot.key, ...snapshot.val() };
       setMessages((prev) => {
@@ -61,36 +63,36 @@ export default function ChatWindow() {
         return [...prev, newMessage].slice(-50);
       });
     });
-
+    //Update messages if modified
     onChildChanged(userChatRef, (snapshot) => {
       const updatedMessage = { id: snapshot.key, ...snapshot.val() };
       setMessages((prev) =>
         prev.map((msg) => (msg.id === updatedMessage.id ? updatedMessage : msg))
       );
     });
-
+  // Remove deleted messages from UI.
     onChildRemoved(userChatRef, (snapshot) => {
       const deletedId = snapshot.key;
       setMessages((prev) => prev.filter((msg) => msg.id !== deletedId));
     });
   }, [user]);
-
+//send message 
   const sendMessage = async () => {
     if (!input.trim() || !user) return;
 
     const userChatRef = ref(db, `chat/${user.uid}`);
-
+//user message
     const userMessage = {
       role: 'user',
       text: input,
-      timestamp: new Date().toISOString(),
+      timestamp: new Date().toISOString(),// add date
     };
     await push(userChatRef, userMessage);
-
+//pending time in gimini
     const placeholderMsg = {
       role: 'assistant',
       text: '...',
-      timestamp: new Date().toISOString(),
+      timestamp: new Date().toISOString(),//add date and time
     };
     const pendingRef = await push(userChatRef, placeholderMsg);
 
@@ -103,7 +105,7 @@ export default function ChatWindow() {
       const model = genAI.getGenerativeModel({ model: 'models/gemini-2.0-flash' });
       const result = await model.generateContent(`${persona.prompt}\n${chatHistory}\nAssistant:`);
       const reply = await result.response.text();
-
+//update messgee
       await update(ref(db, `chat/${user.uid}/${pendingRef.key}`), {
         text: reply,
       });
@@ -114,19 +116,28 @@ export default function ChatWindow() {
 
     setInput('');
   };
-
+// delete message
   const handleDelete = async (id) => {
     if (!user) return;
     await remove(ref(db, `chat/${user.uid}/${id}`));
   };
-
+// update function
+/*
   const handleUpdate = async (id, currentText) => {
     const newText = prompt('Edit your message:', currentText);
     if (newText && newText.trim()) {
       await update(ref(db, `chat/${user.uid}/${id}`), { text: newText });
     }
   };
-
+*/
+// update option 
+const handleUpdate = async (id, newText) => {
+  
+  if (newText && newText.trim()) {
+    await update(ref(db, `chat/${user.uid}/${id}`), { text: newText });
+  }
+};
+// add date 
   const groupMessagesByDate = (msgs) => {
     return msgs.reduce((groups, msg) => {
       const date = new Date(msg.timestamp).toISOString().split('T')[0]; // yyyy-mm-dd
@@ -138,13 +149,19 @@ export default function ChatWindow() {
 
   const grouped = groupMessagesByDate(messages);
 
+
+
+
   return (
-    <div style={{ padding: 22, backgroundColor: darkMode ? '#1e1e1e' : '#f5f5f5', color: darkMode ? '#fff' : '#000' }}>
+   <div>
+    <Navbar />
+   
+    <div style={{ padding: "5px 22px", backgroundColor: darkMode ? '#1e1e1e' : '#f5f5f5', color: darkMode ? '#fff' : '#000' ,maxHeight:"100vh"}}>
       {/* Toggle Button */}
       <button
         onClick={() => setDarkMode(!darkMode)}
         style={{
-          marginBottom: 10,
+          marginBottom: 4,
           padding: 8,
           backgroundColor: darkMode ? '#444' : '#ddd',
           color: darkMode ? '#fff' : '#000',
@@ -159,7 +176,7 @@ export default function ChatWindow() {
       {/* Chat Box */}
       <div
         style={{
-          height: '72vh',
+          height: '68vh',
           overflowY: 'scroll',
           padding: 10,
           marginBottom: 10,
@@ -212,22 +229,24 @@ export default function ChatWindow() {
             borderRadius: "4px 0px 0px 4px",
           }}
         />
+        {/*send button*/}
         <button
           onClick={sendMessage}
           style={{
-            padding: "10px 15px",
+            padding: "10px 20px",
             marginLeft: 0,
             height: 62,
             backgroundColor: darkMode ? '#444' : '#1976d2',
             color: '#fff',
             border: 'none',
-            borderRadius:"0px 4px 4px 0",
+            borderRadius:"0px 10px 10px 0",
             cursor: 'pointer',
           }}
         >
           Send
         </button>
       </div>
+    </div>
     </div>
   );
 }

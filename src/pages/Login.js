@@ -20,7 +20,7 @@ export default function Login() {
 
     try {
       await login(email, password);
-      navigate('/ChatPage');
+      navigate('/ChatWindow');
     } catch (err) {
       console.error(err);
       setError('Invalid credentials or something went wrong.');
